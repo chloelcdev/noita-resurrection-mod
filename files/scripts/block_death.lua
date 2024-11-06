@@ -54,6 +54,11 @@ end
 -- Update player reference on load
 local function update_player_ref()
     local ply = EntityGetWithTag("player_unit")[1]
+
+    if ply == nil then
+        ply = EntityGetWithTag("polymorphed_player")[1]
+    end
+
     if ply and ply ~= player then
         player = ply
         local damage_model = EntityGetFirstComponent(player, "DamageModelComponent")
