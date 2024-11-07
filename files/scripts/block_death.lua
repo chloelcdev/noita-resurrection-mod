@@ -2,6 +2,7 @@ local player = nil
 local death_popup = dofile_once("mods/noita_resurrection_mod/files/scripts/death_popup.lua")
 local health_util = dofile_once("mods/noita_resurrection_mod/files/scripts/health_util.lua")
 local player_util = dofile_once("mods/noita_resurrection_mod/files/scripts/player_util.lua")
+modal = dofile_once("mods/noita_resurrection_mod/files/scripts/modal_util.lua")
 
 local settings_util = dofile_once("mods/noita_resurrection_mod/files/scripts/settings_util.lua")("noita_resurrection_mod", {
     default_health = 33,
@@ -14,6 +15,7 @@ local settings_util = dofile_once("mods/noita_resurrection_mod/files/scripts/set
 local function call_module_on_world_post_updates()
     death_popup.on_world_post_update()
     player_util.process()
+    modal.on_world_post_update()
 end
 
 function OnPausedChanged( is_paused, is_inventory_pause )
@@ -82,19 +84,40 @@ function OnPlayerSpawned(player)
         --print("button clicked: " .. tostring(response))
 
         if response == "Respawn" then
-            set_declined_resurrection(false)
-            death_popup.hide()
-            health_util.set_health(player, settings_util.settings.default_health)
+            are_you_sure_continue()
         elseif response == "EndRun" then
-            --print("try to end run")
-            death_popup.hide()
-            set_declined_resurrection(true)
-            local damage_model = EntityGetFirstComponent(player, "DamageModelComponent")
-            ComponentSetValue2(damage_model, "kill_now", true)
-            ComponentSetValue2(damage_model, "wait_for_kill_flag_on_death", false)
-            EntityInflictDamage(player, 1000000, "DAMAGE_CURSE", tostring(death_popup.death_stats_util.grabbed_stats["Cause of death"]), "NONE", 0, 0, GameGetWorldStateEntity())
-            GameTriggerGameOver()
+            do_endrun()
         end
     end)
 
+end
+
+function do_respawn()
+    player_util.process() -- just for safety, make sure we have the local player grabbed
+    death_popup.hide()
+    set_declined_resurrection(false)
+    health_util.set_health(player_util.local_player, settings_util.settings.default_health)
+end
+
+function do_endrun()
+    player_util.process() -- just for safety, make sure we have the local player grabbed
+    death_popup.hide()
+    set_declined_resurrection(true)
+    local damage_model = EntityGetFirstComponent(player_util.local_player, "DamageModelComponent")
+    ComponentSetValue2(damage_model, "kill_now", true)
+    ComponentSetValue2(damage_model, "wait_for_kill_flag_on_death", false)
+    EntityInflictDamage(player_util.local_player, 1000000, "DAMAGE_CURSE", tostring(death_popup.stats.grabbed_stats["Cause of death"]), "NONE", 0, 0, GameGetWorldStateEntity())
+    GameTriggerGameOver()
+end
+
+function are_you_sure_continue()
+    player_util.process() -- just for safety, make sure we have the local player
+    print("continue")
+    modal.open(
+        "Are you sure you want to resurrect? This is Noita blasphemy.",
+        "The gods can burn.",
+        do_respawn,
+        "No.",
+        nil
+    )
 end

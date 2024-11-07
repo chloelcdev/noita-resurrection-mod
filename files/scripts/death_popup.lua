@@ -2,7 +2,7 @@
 
 local module = {
     pause = dofile_once("mods/noita_resurrection_mod/files/scripts/fake_pause_util.lua"),
-    death_stats_util = dofile_once("mods/noita_resurrection_mod/files/scripts/death_stats_util.lua"),
+    stats = dofile_once("mods/noita_resurrection_mod/files/scripts/death_stats_util.lua"),
 
     img_container = "mods/noita_resurrection_mod/files/container_simple_9piece.png",
     img_game_over = "mods/noita_resurrection_mod/files/game_over.png",
@@ -45,7 +45,7 @@ end
 
 function module.show(player, skip_pause)
 
-    module.death_stats_util.grab_stats()
+    module.stats.grab_stats()
 
     module.is_showing = true
 
@@ -58,7 +58,7 @@ end
 
 function module.on_world_post_update()
 
-    module.death_stats_util.grab_stats()
+    module.stats.grab_stats()
 
     if module.is_showing then
         module.render()
@@ -94,7 +94,7 @@ function module.render()
     local max_text_width = 0
     --print(module.death_stats_util.grabbed_stats["Max HP"])
     for _, stat_name in ipairs(ordered_keys) do
-        local stat_value = module.death_stats_util.grabbed_stats[stat_name]
+        local stat_value = module.stats.grabbed_stats[stat_name]
 
         local text = stat_name .. ":  " .. tostring(stat_value)
         local text_width = GuiGetTextDimensions(module.gui, text, text_scale)
@@ -103,8 +103,12 @@ function module.render()
         end
     end
 
+    local death_cause_text = "Cause of death: " .. "'" ..  tostring(module.stats.grabbed_stats["Cause of death"]) .. "'"
+    local death_cause_width = GuiGetTextDimensions(module.gui, death_cause_text, text_scale)
+
     -- Adjust panel width based on the widest label-value pair
-    min_panel_width = math.max(min_panel_width, max_text_width + 40) -- Adding padding
+    min_panel_width = math.max(death_cause_width, math.max(min_panel_width, max_text_width + 30)) -- Adding padding
+
     local panel_x = (screen_width / 2) - (min_panel_width / 2)
     local panel_y = (screen_height / 2) - (panel_height / 2) + 20
 
@@ -123,14 +127,14 @@ function module.render()
     local y_offset = panel_y + 6
 
     -- Draw the "Cause of death" label at the top, centered
-    local death_cause_text = "Cause of death: " .. "'" ..  tostring(module.death_stats_util.grabbed_stats["Cause of death"]) .. "'"
+    
     local death_cause_x = panel_x + (min_panel_width - GuiGetTextDimensions(module.gui, death_cause_text, text_scale)) / 2
     GuiText(module.gui, death_cause_x, y_offset, death_cause_text, text_scale)
     
     y_offset = y_offset + common_spacing + 2
 
     for _, stat_name in ipairs(ordered_keys) do
-        local stat_value = module.death_stats_util.grabbed_stats[stat_name]
+        local stat_value = module.stats.grabbed_stats[stat_name]
         
         stat_name = stat_name .. ":"
         -- Draw the label in the default color

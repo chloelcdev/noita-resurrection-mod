@@ -8,6 +8,9 @@
 -- it is recommended you unpause the game in OnPlayerSpawn, in case a crash happened or something while it was paused
 
 
+-- KNOWN BUG: data/entities/buildings/firebugnest.xml has a LuaComponent that is not paused correctly. Need to disable LuaComponents specifically by what scripts are attached to them, because we can't just disable all LuaComponents. There are likely many things that will need this LuaComponent coverage.
+
+
 
 local module = {}
 
@@ -173,8 +176,6 @@ end
 function module.comp_func_toggle_damage_model(entity, component, pause)
     module.affect_paused_comp_field(entity, component, pause, {
         {"materials_damage", false, true},
-        --{"materials_that_damage", "", true},
-        --{"materials_how_much_damage", "", true},
         {"fire_damage_amount", 0, true},
 		{"air_needed", false, true},
 		{"falling_damages", false, true},
@@ -185,6 +186,7 @@ function module.comp_func_toggle_damage_model(entity, component, pause)
         {"in_liquid_shooting_electrify_prob", 0, true},
 
     })
+    --module.comp_func_toggle_whole_component(entity, component, pause)
 end
 
 function module.comp_func_toggle_animal_ai(entity, component, pause)
@@ -235,6 +237,8 @@ module.disallowed_components = {
     DamageModelComponent = module.comp_func_toggle_damage_model,
     PathFindingComponent = module.comp_func_toggle_pathfinding,
 	SpriteAnimatorComponent = module.comp_func_toggle_whole_component,
+    HitboxComponent = module.comp_func_toggle_whole_component,
+    ProjectileComponent = module.comp_func_toggle_whole_component,
 	CharacterPlatformingComponent = module.comp_func_toggle_char_platforming,
     ControlsComponent = module.comp_func_toggle_player_controls,
 	CharacterDataComponent = module.comp_func_toggle_whole_component,
@@ -250,6 +254,7 @@ module.disallowed_components = {
 	GameEffectComponent = module.comp_func_toggle_whole_component,
     SimplePhysicsComponent = module.comp_func_toggle_whole_component,
     PixelSpriteComponent = module.comp_func_toggle_whole_component,
+    GenomeDataComponent = module.comp_func_toggle_whole_component,
     --LuaComponent = module.comp_func_toggle_whole_component, -- probably not
 }
 
