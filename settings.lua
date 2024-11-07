@@ -7,22 +7,49 @@ mod_settings_version = 1
 
 mod_settings = {
     {
-        id = "default_health_on_revive",
-        ui_name = "Health on Revival",
-        ui_description = "Amount of health restored when reviving.",
-        value_default = 100,
+        id = "default_health",
+        ui_name = "Health on Resurrection",
+        ui_description = "Amount of health revert when reviving.",
+        value_default = 33,
         value_min = 1,
         value_max = 1000,
-        scope = MOD_SETTING_SCOPE_RUNTIME_RESTART, -- Setting takes effect on restart
+        scope = MOD_SETTING_SCOPE_RUNTIME, -- Setting takes effect on restart
     },
+    -- one for whether default health is percentage based
     {
-        id = "death_popup_text",
-        ui_name = "Death Popup Text",
-        ui_description = "Message displayed when player dies.",
-        value_default = "You technically died. Continue?",
-        text_max_length = 100,
-        scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
+        id = "use_percentage_health",
+        ui_name = "Percentage-based Health",
+        ui_description = "Whether the health on resurrection is a percentage of max health.",
+        value_default = false,
+        scope = MOD_SETTING_SCOPE_RUNTIME,
     },
+    -- a general purpose mod disable for runtime
+    {
+        id = "mod_disabled",
+        ui_name = "Disable",
+        ui_description = "Used for effectively disabling the mod without having to restart.",
+        value_default = true,
+        scope = MOD_SETTING_SCOPE_RUNTIME,
+    },
+    -- a general purpose pause disable 
+    {
+        id = "pause_disabled",
+        ui_name = "[PROBLEMATIC] Disable Faux-Pause",
+        ui_description = "Used to disable the fake pause feature when the popup comes up. Be prepared for the consequences of that :p (I figure people can use-at-their-own-risk with entangled worlds maybe, though I don't use this in e.w.)",
+        value_default = false,
+        scope = MOD_SETTING_SCOPE_RUNTIME,
+    },
+
+
+    
+    -- {
+    --     id = "string_field_example",
+    --     ui_name = "Example of a text field for strings",
+    --     ui_description = "Blah",
+    --     value_default = "hmmm",
+    --     text_max_length = 100,
+    --     scope = MOD_SETTING_SCOPE_RUNTIME,
+    -- },
 }
 
 -- Update function for settings

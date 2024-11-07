@@ -1,111 +1,100 @@
--- block_death.lua
-
--- Load the popup module
-local popup = dofile_once("mods/noita_resurrection_mod/files/scripts/death_popup.lua")
-
 local player = nil
-local default_health = ModSettingGet("noita_resurrection_mod.default_health_on_revive") or 100
+local death_popup = dofile_once("mods/noita_resurrection_mod/files/scripts/death_popup.lua")
+local health_util = dofile_once("mods/noita_resurrection_mod/files/scripts/health_util.lua")
+local player_util = dofile_once("mods/noita_resurrection_mod/files/scripts/player_util.lua")
 
+local settings_util = dofile_once("mods/noita_resurrection_mod/files/scripts/settings_util.lua")("noita_resurrection_mod", {
+    default_health = 33,
+    use_percentage_health = false,
+    mod_disabled = false,
+    pause_disabled = false,
+    entangled_worlds_mode = false
+})
 
-function get_max_hp(player)
-    local damagemodels = EntityGetComponent(player, "DamageModelComponent")
-    if damagemodels ~= nil then
-        for _, dmg_model in ipairs(damagemodels) do
-            return ComponentGetValue2(dmg_model, "max_hp")
-        end
-    end
-    return nil
+local function call_module_on_world_post_updates()
+    death_popup.on_world_post_update()
+    player_util.process()
 end
 
--- Check if resurrection has been declined
+function OnPausedChanged( is_paused, is_inventory_pause )
+    settings_util.on_paused_changed(is_paused, is_inventory_pause)
+end
+
+-- Check if resurrection has been declined. 
+-- If so, we've clicked the "End Run" button, and we need to make sure the player DIES dies. 
+-- This is more a safety check than anything and can likely be taken out eventually
 local function has_declined_resurrection()
     return GlobalsGetValue("resurrection_declined", "false") == "true"
 end
 
--- Set resurrection declined status
+-- Set if resurrection has been declined
 local function set_declined_resurrection(value)
     GlobalsSetValue("resurrection_declined", tostring(value))
 end
 
--- Set player health
-local function set_health(entity, health)
-    local damage_model = EntityGetFirstComponentIncludingDisabled(entity, "DamageModelComponent")
-    if damage_model then
-        ComponentSetValue2(damage_model, "hp", health)
-    end
-end
 
 -- Health check and popup trigger
-local function check_player_health()
+local function check_for_player_death()
 
-    if not player or has_declined_resurrection() then return end
+    if not player_util.local_player or has_declined_resurrection() then return end
 
-    local hp = ComponentGetValue2(EntityGetFirstComponentIncludingDisabled(player, "DamageModelComponent"), "hp")
+    local hp = ComponentGetValue2(EntityGetFirstComponentIncludingDisabled(player_util.local_player, "DamageModelComponent"), "hp")
     if hp ~= nil and hp <= 0 then
-
-        print("health dropped below 0")
-        
-        set_health(player, 4 / get_max_hp(player) * default_health)
-        
-        popup.show(player)-- Initialize player settings on load
+        --print("health dropped below 0")
+        health_util.set_health(player_util.local_player, 1) -- just keep us alive
+        death_popup.show(player_util.local_player, settings_util.settings.pause_disabled)
     end
 end
 
--- Update player reference on load
-local function update_player_ref()
-    local ply = EntityGetWithTag("player_unit")[1]
-
-    if ply == nil then
-        ply = EntityGetWithTag("polymorphed_player")[1]
-    end
-
-    if ply and ply ~= player then
-        player = ply
-        local damage_model = EntityGetFirstComponent(player, "DamageModelComponent")
+-- keeps our player variable up to date each WorldUpdate
+local function grant_player_immunity()
+    if player_util.local_player ~= nil then
+        local damage_model = EntityGetFirstComponent(player_util.local_player, "DamageModelComponent")
         if damage_model and not has_declined_resurrection() then
             ComponentSetValue2(damage_model, "wait_for_kill_flag_on_death", true)
         end
     end
 end
 
--- Event handling
-function OnWorldPostUpdate()
-    update_player_ref()
 
-    popup.render_if_showing()
+function OnWorldPostUpdate()
+    if settings_util.settings.mod_disabled then
+        return
+    end
+
+    call_module_on_world_post_updates()
+    grant_player_immunity()
     
-    -- checking the module isn't the BEST way but eh
-    if not popup.is_showing then
-        check_player_health()
+    if not death_popup.is_showing then
+        check_for_player_death()
     end
 end
 
-function OnPlayerSpawned()
-    update_player_ref()
+
+
+function OnPlayerSpawned(player)
 
     -- unpause the game when we start, in case a crash happened or something while it was paused
-    popup.pause.unpause_game(true)
+    death_popup.pause.unpause_game(true)
  
-    popup.set_response_handler( function (response)
+    death_popup.set_response_handler( function (response)
 
-        print("button clicked: " .. tostring(response))
+        --print("button clicked: " .. tostring(response))
 
         if response == "Respawn" then
             set_declined_resurrection(false)
-            popup.hide()
-            set_health(player, 4 / get_max_hp(player) * default_health)
+            death_popup.hide()
+            health_util.set_health(player, settings_util.settings.default_health)
         elseif response == "EndRun" then
-            print("try to end run")
-            popup.hide()
+            --print("try to end run")
+            death_popup.hide()
             set_declined_resurrection(true)
             local damage_model = EntityGetFirstComponent(player, "DamageModelComponent")
             ComponentSetValue2(damage_model, "kill_now", true)
             ComponentSetValue2(damage_model, "wait_for_kill_flag_on_death", false)
-            EntityInflictDamage(player, 1000000, "DAMAGE_CURSE", popup.grabbed_stats["Cause of death"], "NONE", 0, 0, GameGetWorldStateEntity())
+            EntityInflictDamage(player, 1000000, "DAMAGE_CURSE", tostring(death_popup.death_stats_util.grabbed_stats["Cause of death"]), "NONE", 0, 0, GameGetWorldStateEntity())
             GameTriggerGameOver()
         end
     end)
 
 end
-
--- 1297461439 - easy LC

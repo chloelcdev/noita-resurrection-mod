@@ -1,4 +1,14 @@
--- fake_pause.lua
+-- Usage: 
+
+-- only functions you need to know:
+
+-- module.pause_game(player)
+-- module.unpause_game(player)
+
+-- it is recommended you unpause the game in OnPlayerSpawn, in case a crash happened or something while it was paused
+
+
+
 local module = {}
 
 module.is_paused = false
@@ -86,6 +96,7 @@ function module.load_pause_values(varStorage, entity, componentToStore, fields)
     end
 end
 
+-- fields is: name, value, should_store
 function module.affect_paused_comp_field(entity, component, pause, fields)
 
     local varStorage = module.get_or_add_component_storage(entity, ComponentGetTypeName(component))
@@ -97,9 +108,23 @@ function module.affect_paused_comp_field(entity, component, pause, fields)
     end
 end
 
+
+
+
+
+
+
+
 function module.comp_func_toggle_whole_component(entity, component, pause)
     module.affect_paused_comp_field(entity, component, pause, {
         {"Enabled", false, true}
+    })
+end
+
+function module.comp_func_toggle_velocity_component(entity, component, pause)
+    module.affect_paused_comp_field(entity, component, pause, {
+        {"mVelocity_x", 0, true},
+        {"mVelocity_y", 0, true},
     })
 end
 
@@ -195,9 +220,18 @@ function module.comp_func_toggle_char_platforming(entity, component, pause)
     })
 end
 
+
+
+
+
+
+
+
+
+
 module.disallowed_components = {
     AnimalAIComponent = module.comp_func_toggle_animal_ai,
-    VelocityComponent = module.comp_func_toggle_whole_component,
+    VelocityComponent = module.comp_func_toggle_velocity_component,
     DamageModelComponent = module.comp_func_toggle_damage_model,
     PathFindingComponent = module.comp_func_toggle_pathfinding,
 	SpriteAnimatorComponent = module.comp_func_toggle_whole_component,
@@ -213,57 +247,68 @@ module.disallowed_components = {
 	ItemPickUpperComponent = module.comp_func_toggle_whole_component,
 	InventoryGuiComponent = module.comp_func_toggle_whole_component,
 	GunComponent = module.comp_func_toggle_whole_component,
+	GameEffectComponent = module.comp_func_toggle_whole_component,
+    SimplePhysicsComponent = module.comp_func_toggle_whole_component,
+    PixelSpriteComponent = module.comp_func_toggle_whole_component,
+    --LuaComponent = module.comp_func_toggle_whole_component, -- probably not
 }
 
-function module.toggle_entity_components(entity, pause)
+-- Recursively toggle disallowed components for an entity and its children using the registered toggle function for that component type
+function module.toggle_components_recursively(entity, pause)
     if not entity then return end
 
+    -- Toggle components for the current entity
     local all_comps = EntityGetAllComponents(entity)
-    if not all_comps then return end
-
-    for _, component in ipairs(all_comps) do
-        local component_name = ComponentGetTypeName(component)
-        local toggle_func = module.disallowed_components[component_name]
-        if toggle_func then
-            toggle_func(entity, component, pause)
+    if all_comps then
+        for _, component in ipairs(all_comps) do
+            local component_name = ComponentGetTypeName(component)
+            local toggle_func = module.disallowed_components[component_name]
+            if toggle_func then
+                toggle_func(entity, component, pause)
+            end
         end
+    end
+
+    -- Recursively process child entities
+    local children = EntityGetAllChildren(entity) or {}
+    for _, child in ipairs(children) do
+        module.toggle_components_recursively(child, pause)
     end
 end
 
 function module.pause_entity(entity)
-    print("pausing entity [" .. tostring(entity) .. "] " .. EntityGetName(entity))
+    --print("pausing entity [" .. tostring(entity) .. "] " .. EntityGetName(entity))
     EntityAddTag(entity, "fake_paused_entity")
-    module.toggle_entity_components(entity, true)
+    module.toggle_components_recursively(entity, true)
 end
 
 function module.unpause_entity(entity)
-    print("unpausing entity [" .. tostring(entity) .. "] " .. EntityGetName(entity))
-    module.toggle_entity_components(entity, false)
+    --print("unpausing entity [" .. tostring(entity) .. "] " .. EntityGetName(entity))
+    module.toggle_components_recursively(entity, false)
     EntityRemoveTag(entity, "fake_paused_entity")
 end
 
--- Pause game entities and player controls
 function module.pause_game(player)
-	print("-------------------=====================---- try pause " .. tostring(module.is_paused))
     if not module.is_paused then
         module.is_paused = true
-
         if player then module.pause_entity(player) end
-        for _, enemy in ipairs(EntityGetWithTag("enemy") or {}) do module.pause_entity(enemy) end
-        for _, projectile in ipairs(EntityGetWithTag("projectile") or {}) do module.pause_entity(projectile) end
+        for _, enemy in ipairs(EntityGetWithTag("enemy") or {}) do
+            module.pause_entity(enemy)
+        end
+        for _, projectile in ipairs(EntityGetWithTag("projectile") or {}) do
+            module.pause_entity(projectile)
+        end
     end
 end
 
--- Unpause game entities and player controls
 function module.unpause_game(force)
-	print("-------------------=====================---- try unpause " .. tostring(module.is_paused) .. " " .. tostring(force))
-    if module.is_paused  or force then
+    if module.is_paused or force then
         module.is_paused = false
-
-        for _, paused_ent in ipairs(EntityGetWithTag("fake_paused_entity") or {}) do module.unpause_entity(paused_ent) end
+        for _, paused_ent in ipairs(EntityGetWithTag("fake_paused_entity") or {}) do
+            module.unpause_entity(paused_ent)
+        end
     end
 end
-
 
 
 return module
