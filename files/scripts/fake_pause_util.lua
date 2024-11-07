@@ -258,6 +258,11 @@ module.disallowed_components = {
     --LuaComponent = module.comp_func_toggle_whole_component, -- probably not
 }
 
+--KNOWN BUG: Flying enemies fall a bit when you revive. This was fixed at some point and has come back
+
+
+
+
 -- Recursively toggle disallowed components for an entity and its children using the registered toggle function for that component type
 function module.toggle_components_recursively(entity, pause)
     if not entity then return end

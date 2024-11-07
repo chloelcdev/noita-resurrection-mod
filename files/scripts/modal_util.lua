@@ -17,9 +17,8 @@ local modal = {
     img_container = "mods/noita_resurrection_mod/files/container_simple_9piece.png", -- Replace with your actual image path
 
     gui_style = {
-        dialog_width = 300,
-        dialog_height = 80,
-        padding = 14,
+        dialog_width = 270,
+        dialog_height = 54,
         button_spacing = 20  -- Added button spacing
     }
 }
@@ -84,6 +83,7 @@ function modal.render()
     -- Panel dimensions
     local panel_width = modal.gui_style.dialog_width
     local panel_height = modal.gui_style.dialog_height
+    local y_offset = 8
 
     local panel_x = (screen_width - panel_width) / 2
     local panel_y = (screen_height - panel_height) / 2
@@ -94,7 +94,7 @@ function modal.render()
     -- Centered Message
     local message_width, message_height = GuiGetTextDimensions(modal.gui, modal.message, 1)
     local text_x = panel_x + (panel_width - message_width) / 2
-    local text_y = panel_y + (panel_height - message_height) / 2 - 10
+    local text_y = panel_y + (panel_height - message_height) / 2 - y_offset
     GuiText(modal.gui, text_x, text_y, modal.message, 1)
 
     -- Calculate button dimensions and positions
@@ -104,7 +104,7 @@ function modal.render()
     local total_button_width = yes_button_width + no_button_width + modal.gui_style.button_spacing
     local buttons_x_start = panel_x + (panel_width - total_button_width) / 2
     
-    local button_y = panel_y + panel_height - 20 - modal.gui_style.padding
+    local button_y = panel_y + panel_height - 20
     
     -- Yes Button
     local yes_button_x = buttons_x_start
