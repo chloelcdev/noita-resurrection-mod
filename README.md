@@ -28,7 +28,7 @@ Welcome to the Noita Resurrection Mod! This mod introduces a unique feature allo
 
 ## Usage
 
-Once the mod is installed and enabled
+Once the mod is installed and enabled, you're now under my protection. *cough* hope that holds up...
 
 ## Future Plans
 
