@@ -1,6 +1,6 @@
 # Noita Resurrection Mod
 
-Welcome to the Noita Resurrection Mod! This mod introduces a unique feature allowing players to resurrect after death, giving you another chance to continue your adventure in the perilous world of Noita. Now, you should of course
+Welcome to the Noita Resurrection Mod! This mod introduces a unique feature allowing players to resurrect upon death by displaying a fake death screen and preventing the actual game over, giving you a chance to claim, "Not fair! I was Noita'd!". 
 
 ## Features
 
