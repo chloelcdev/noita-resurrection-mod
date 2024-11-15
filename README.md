@@ -4,10 +4,16 @@ Welcome to the Noita Resurrection Mod! This mod introduces a unique feature allo
 
 ## Features
 
-- **Resurrection Option**: Upon death, a popup appears with the option to resurrect by clicking the "Bullshit!" button. This gives players a second chance to continue their run.
-- **Game Pause and Unpause Mechanics**: The mod includes custom pause logic to freeze and unfreeze game entities, ensuring smooth transitions between death and revival.
+- **Resurrection Option**: Upon death, a popup appears with the option to resurrect by clicking the "Noita'd!" button. This gives players another chance to continue their run.
+- **Game Pause and Unpause Mechanics**: The mod includes custom pause logic to partially freeze and unfreeze game entities, ensuring smooth transitions between death and revival.
 
 ## Installation
+
+### Steam Workshop
+
+1. Just subscribe to the mod https://steamcommunity.com/sharedfiles/filedetails/?id=3361653541
+
+### Manual
 
 1. **Download the Mod**: Clone or download the repository from GitHub.
 
@@ -21,10 +27,7 @@ Welcome to the Noita Resurrection Mod! This mod introduces a unique feature allo
 
 ## Usage
 
-- **Upon Death**: When your character dies, a popup will appear displaying your stats and the cause of death.
-- **Resurrection**: Click the "Noita'd!" button to respawn and continue your run.
-- **Confirm**: Click to confirm that you were, indeed, Noita'd. If it was a skill issue, you should accept the sacrifice you've made in the pursuit of knowledge.
-- **Game Over**: Click the "End Run" button if you wish to conclude the game session.
+Once the mod is installed and enabled
 
 ## Future Plans
 
