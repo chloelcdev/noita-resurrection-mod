@@ -11,7 +11,7 @@ Welcome to the Noita Resurrection Mod! This mod introduces a unique feature allo
 
 1. **Download the Mod**: Clone or download the repository from GitHub.
 
-   ```git clone https://github.com/yourusername/noita-resurrection-mod.git```
+   ```git clone https://github.com/chloelcdev/noita-resurrection-mod.git```
 
 2. **Locate Noita Mods Folder**: Find the Noita mods directory on your computer. This is typically located in the game's installation directory under `mods`.
 
