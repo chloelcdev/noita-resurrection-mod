@@ -5,6 +5,7 @@ Welcome to the Noita Resurrection Mod! This mod introduces a unique feature allo
 ## Features
 
 - **Resurrection Option**: Upon death, a popup appears with the option to resurrect by clicking the "Noita'd!" button. This gives players another chance to continue their run.
+- 
 - **Game Pause and Unpause Mechanics**: The mod includes custom pause logic to partially freeze and unfreeze game entities, ensuring smooth transitions between death and revival.
 
 ## Installation
