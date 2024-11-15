@@ -32,7 +32,7 @@ Once the mod is installed and enabled, you're now under my protection. *cough* h
 
 ## Future Plans
 
-- **External Pause Library**: While everyone can always feel free to grab the code, we plan to externalize the pause functionality as a supported library soon. If anyone in the community wants to take this on and make it a standard Lua pause library that doesn't require "allow unsafe mods," feel free. Let us know if you do, as we'd love to contribute if we have time.
+- **External Pause Library**: While everyone can always feel free to grab the code, I plan to externalize the pause functionality as a supported library sometime soon. If anyone in the community wants to take it and run with it so we have standard Lua pause library that doesn't require "allow unsafe mods," feel free. Let me know if you do, as I'd love to contribute if we have time.
 
 ## Contribution
 
